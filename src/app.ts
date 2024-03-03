@@ -9,7 +9,9 @@ import logger from './configs/logger.config';
 
 const app = express();
 
-app.use(morganMiddleware);
+if (process.env.NODE_ENV !== 'production') {
+    app.use(morganMiddleware);
+}
 
 app.use(helmet());
 app.use(mongoSanitize());
