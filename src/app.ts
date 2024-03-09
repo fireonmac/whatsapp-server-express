@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -6,6 +6,7 @@ import fileUpload from 'express-fileupload';
 import mongoSanitize from 'express-mongo-sanitize';
 import morganMiddleware from './middlewares/morgan.middleware';
 import logger from './configs/logger.config';
+import createHttpError, { HttpError } from 'http-errors';
 
 const app = express();
 
@@ -29,7 +30,22 @@ app.use(
 );
 
 app.get('/', (req, res) => {
-    logger.info(req.body);
+    res.send(req.body);
+});
+
+app.use((req, res, next) => {
+    next(createHttpError.NotFound('This route does not exist.'));
+});
+
+app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
+    const errorStatus = err.status || 500;
+    res.status(errorStatus);
+    res.send({
+        error: {
+            status: errorStatus,
+            message: err.message,
+        },
+    });
 });
 
 export default app;
