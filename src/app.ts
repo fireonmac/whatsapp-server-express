@@ -4,9 +4,12 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import fileUpload from 'express-fileupload';
 import mongoSanitize from 'express-mongo-sanitize';
+import createHttpError, { HttpError } from 'http-errors';
+
 import morganMiddleware from './middlewares/morgan.middleware';
 import logger from './configs/logger.config';
-import createHttpError, { HttpError } from 'http-errors';
+
+import routes from './routes';
 
 const app = express();
 
@@ -29,9 +32,8 @@ app.use(
     })
 );
 
-app.get('/', (req, res) => {
-    res.send(req.body);
-});
+// api v1 routes
+app.use('/api/v1', routes);
 
 app.use((req, res, next) => {
     next(createHttpError.NotFound('This route does not exist.'));
